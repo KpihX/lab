@@ -1,0 +1,118 @@
+[project]
+name = "lab"
+version = "0.2.0"
+description = "KpihX scientific and AI exploration environment (rapid scripts, plotting, numerics, hardware-accelerated prototyping)"
+requires-python = ">=3.12"
+
+# Base scientific stack. Kept deliberately small: this environment is loaded on
+# every exploratory script, so it stays fast to sync and easy to reason about.
+# Everything heavier is an optional profile below.
+dependencies = [
+    "numpy>=2.5.2",
+    "scipy>=1.18.1",
+    "matplotlib>=3.11.1",
+]
+
+# ---------------------------------------------------------------------------
+# Optional profiles: hardware axes and domain axes are separate on purpose
+# ---------------------------------------------------------------------------
+# Hardware profiles are mutually exclusive: a machine gets exactly one torch
+# backend. Domain profiles stack freely on top.
+#
+# Usage:
+#   uv sync                          base numerics only
+#   uv sync --extra llm              + transformers for HF model work
+#   uv sync --extra gpu-intel        + Intel Arc (XPU) torch
+#   uv sync --extra gpu-intel --extra llm
+[project.optional-dependencies]
+cpu = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+]
+gpu-intel = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "intel-extension-for-pytorch>=2.0",
+    "triton-xpu>=3.8.0",
+]
+gpu-cuda = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+]
+llm = [
+    "transformers>=4.57",
+    "accelerate",
+    "huggingface_hub",
+    "safetensors",
+]
+vision = [
+    "pillow",
+    "opencv-python-headless",
+]
+notebook = [
+    "jupyterlab",
+    "ipykernel",
+]
+
+[tool.uv]
+package = false
+# On Intel Arc, this entry makes the XPU wheels rank correctly against PyPI
+# during resolution. Removing it is how PyTorch silently resolves to a CUDA
+# build and the model ends up on the CPU. Rationale and full doctrine:
+# k-ai/references/pyproject-hardware.md, template: AI/nobg/pyproject.toml.
+index-strategy = "unsafe-best-match"
+prerelease = "allow"
+# One accelerator backend per environment, never a mixture.
+conflicts = [
+    [{ extra = "cpu" }, { extra = "gpu-intel" }, { extra = "gpu-cuda" }],
+]
+
+# ---------------------------------------------------------------------------
+# PyTorch indexes
+# ---------------------------------------------------------------------------
+# Index flags mirror the verified k-nobg template exactly. `explicit = true`
+# keeps an index out of general resolution so the base numeric workflow is
+# unaffected; the XPU index is left non-explicit on purpose, that combination is
+# the one measured working on this machine.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-xpu"
+url = "https://download.pytorch.org/whl/xpu"
+
+[[tool.uv.index]]
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+# This binding is what actually selects the accelerator.
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-xpu", extra = "gpu-intel" },
+    { index = "pytorch-cuda", extra = "gpu-cuda" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-xpu", extra = "gpu-intel" },
+    { index = "pytorch-cuda", extra = "gpu-cuda" },
+]
+triton-xpu = [{ index = "pytorch-xpu", extra = "gpu-intel" }]
+
+# ---------------------------------------------------------------------------
+# Development
+# ---------------------------------------------------------------------------
+[dependency-groups]
+dev = [
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "ISC"]
