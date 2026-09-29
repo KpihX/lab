@@ -11,6 +11,9 @@ dependencies = [
     "numpy>=2.5.2",
     "scipy>=1.18.1",
     "matplotlib>=3.11.1",
+    "pandas>=2.2.2",
+    # In base so make kernel works on a bare sync.
+    "ipykernel>=7.4.0",
 ]
 
 # ---------------------------------------------------------------------------
@@ -19,39 +22,31 @@ dependencies = [
 # Hardware profiles are mutually exclusive: a machine gets exactly one torch
 # backend. Domain profiles stack freely on top.
 #
-# Usage:
+# Usage: bare sync = base only, plus exactly one hardware backend.
 #   uv sync                          base numerics only
-#   uv sync --extra llm              + transformers for HF model work
-#   uv sync --extra gpu-intel        + Intel Arc (XPU) torch
-#   uv sync --extra gpu-intel --extra llm
+#   uv sync --extra cpu              + CPU torch
+#   uv sync --extra xpu              + Intel Arc (XPU) torch
+#   uv sync --extra cuda             + NVIDIA CUDA torch
 [project.optional-dependencies]
 cpu = [
-    "torch>=2.0",
-    "torchvision>=0.15",
+    "torch>=2.8",
+    "torchvision>=0.23",
 ]
-gpu-intel = [
-    "torch>=2.0",
-    "torchvision>=0.15",
-    "intel-extension-for-pytorch>=2.0",
-    "triton-xpu>=3.8.0",
-]
-gpu-cuda = [
-    "torch>=2.0",
-    "torchvision>=0.15",
-]
-llm = [
+xpu = [
+    "torch>=2.8",
+    "torchvision>=0.23",
     "transformers>=4.57",
-    "accelerate",
-    "huggingface_hub",
-    "safetensors",
+    "accelerate>=1.10.1",
+    "huggingface_hub>=0.34.4",
+    "safetensors>=0.6.2",
 ]
-vision = [
-    "pillow",
-    "opencv-python-headless",
-]
-notebook = [
-    "jupyterlab",
-    "ipykernel",
+cuda = [
+    "torch>=2.8",
+    "torchvision>=0.23",
+    "transformers>=4.57",
+    "accelerate>=1.10.1",
+    "huggingface_hub>=0.34.4",
+    "safetensors>=0.6.2",
 ]
 
 [tool.uv]
@@ -64,7 +59,7 @@ index-strategy = "unsafe-best-match"
 prerelease = "allow"
 # One accelerator backend per environment, never a mixture.
 conflicts = [
-    [{ extra = "cpu" }, { extra = "gpu-intel" }, { extra = "gpu-cuda" }],
+    [{ extra = "cpu" }, { extra = "xpu" }, { extra = "cuda" }],
 ]
 
 # ---------------------------------------------------------------------------
@@ -92,24 +87,18 @@ explicit = true
 # This binding is what actually selects the accelerator.
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
-    { index = "pytorch-xpu", extra = "gpu-intel" },
-    { index = "pytorch-cuda", extra = "gpu-cuda" },
+    { index = "pytorch-xpu", extra = "xpu" },
+    { index = "pytorch-cuda", extra = "cuda" },
 ]
 torchvision = [
     { index = "pytorch-cpu", extra = "cpu" },
-    { index = "pytorch-xpu", extra = "gpu-intel" },
-    { index = "pytorch-cuda", extra = "gpu-cuda" },
+    { index = "pytorch-xpu", extra = "xpu" },
+    { index = "pytorch-cuda", extra = "cuda" },
 ]
-triton-xpu = [{ index = "pytorch-xpu", extra = "gpu-intel" }]
 
 # ---------------------------------------------------------------------------
 # Development
 # ---------------------------------------------------------------------------
-[dependency-groups]
-dev = [
-    "ruff",
-]
-
 [tool.ruff]
 line-length = 100
 target-version = "py312"
