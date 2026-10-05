@@ -64,6 +64,6 @@ publish:  ## Full publish: init repo if needed, create GitHub repo (kpihx/lab), 
 		git push github master; \
 	fi
 	@$(MAKE) build
-	@echo "Publishing to PyPI (requires UV_PUBLISH_TOKEN in env; run in tmux ops pane with 'with-env uv publish')..."
-	@uv publish
+	@echo "Publishing to PyPI (with-env from .agents/.env)..."
+	@zsh -lic 'cd "$(CURDIR)" && with-env uv publish'
 	@echo "✅ published"
