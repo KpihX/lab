@@ -11,3 +11,7 @@ __pycache__/
 # Tooling
 .ruff_cache/
 .pytest_cache/
+
+# Lab specific
+assets/
+dist/

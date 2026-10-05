@@ -6,7 +6,7 @@
 
 ### Scripts Location
 - **Quick throwaway scripts → `/tmp/`** — always. This is the default for any one-off script.
-- **Scripts that need scientific libraries (numpy, matplotlib, scipy, etc.) → `~/KpihX-Labs/Explore/lab/scripts/`** — create them here and use the libs already installed.
+- **Scripts that need scientific libraries (numpy, matplotlib, scipy, etc.) → `~/Labs/Explore/lab/scripts/`** — create them here and use the libs already installed.
 
 ### Dependency Management
 - **100% uv in this lab. NEVER pip. NEVER `python -m pip`. NEVER `uv pip`.**

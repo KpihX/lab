@@ -5,7 +5,7 @@ UV := $(shell command -v uv 2>/dev/null || echo uv)
 SCRIPTS := scripts
 PY := $(UV) run python
 
-.PHONY: help sync sync-cpu sync-xpu sync-cuda kernel smoke check clean
+.PHONY: help sync sync-cpu sync-xpu sync-cuda kernel smoke check clean build push publish
 
 help:  ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
@@ -43,3 +43,27 @@ check:  ## Byte-compile every script and verify the base stack imports
 clean:  ## Remove Python bytecode caches
 	@$(PY) -c "import pathlib, shutil; [shutil.rmtree(p, ignore_errors=True) for p in pathlib.Path('$(SCRIPTS)').rglob('__pycache__')]"
 	@echo "✅ caches removed"
+
+build:  ## Remove dist/ if present and rebuild with uv
+	@rm -rf dist
+	@$(UV) build
+	@echo "✅ build complete in dist/"
+
+push:  ## Push current branch to ALL remotes (auto-discovered via xargs)
+	@git remote | xargs -r -I{} git push {} $(shell git branch --show-current)
+	@echo "✅ pushed to all remotes"
+
+publish:  ## Full publish: init repo if needed, create GitHub repo (kpihx/lab), push, build, publish
+	@git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init
+	@git branch -M master
+	@if ! git remote | grep -q '^github$$'; then \
+		echo "Creating GitHub repo kpihx/lab..."; \
+		gh repo create kpihx/lab --public --source=. --remote=github --push; \
+	else \
+		echo "Remote 'github' exists, pushing..."; \
+		git push github master; \
+	fi
+	@$(MAKE) build
+	@echo "Publishing to PyPI (requires UV_PUBLISH_TOKEN in env; run in tmux ops pane with 'with-env uv publish')..."
+	@uv publish
+	@echo "✅ published"
