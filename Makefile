@@ -53,17 +53,6 @@ push:  ## Push current branch to ALL remotes (auto-discovered via xargs)
 	@git remote | xargs -r -I{} git push {} $(shell git branch --show-current)
 	@echo "✅ pushed to all remotes"
 
-publish:  ## Full publish: init repo if needed, create GitHub repo (kpihx/lab), push, build, publish
-	@git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init
-	@git branch -M master
-	@if ! git remote | grep -q '^github$$'; then \
-		echo "Creating GitHub repo kpihx/lab..."; \
-		gh repo create kpihx/lab --public --source=. --remote=github --push; \
-	else \
-		echo "Remote 'github' exists, pushing..."; \
-		git push github master; \
-	fi
-	@$(MAKE) build
-	@echo "Publishing to PyPI (with-env from .agents/.env)..."
+publish: build  ## Build then publish to PyPI (atomic)
 	@zsh -lic 'cd "$(CURDIR)" && with-env uv publish'
 	@echo "✅ published"
