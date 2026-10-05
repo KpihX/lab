@@ -54,5 +54,5 @@ push:  ## Push current branch to ALL remotes (auto-discovered via xargs)
 	@echo "✅ pushed to all remotes"
 
 publish: build  ## Build then publish to PyPI (atomic)
-	@zsh -lic 'cd "$(CURDIR)" && with-env uv publish'
+	@$(UV) publish
 	@echo "✅ published"

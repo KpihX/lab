@@ -1,5 +1,5 @@
 [project]
-name = "lab"
+name = "kpihx-lab"
 version = "0.2.0"
 description = "KpihX scientific and AI exploration environment (rapid scripts, plotting, numerics, hardware-accelerated prototyping)"
 requires-python = ">=3.12"
