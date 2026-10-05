@@ -4,8 +4,17 @@ SHELL := /bin/zsh
 UV := $(shell command -v uv 2>/dev/null || echo uv)
 SCRIPTS := scripts
 PY := $(UV) run python
+KAGGLE := $(shell command -v kaggle 2>/dev/null || echo kaggle)
+KAGGLE_TIMEOUT ?= 60
+NBS_LAB := nbs/lab
+NBS_COLAB := nbs/colab
+NBS_KAGGLE := nbs/kaggle
+KERNEL_LAB := ivannkamdem/kpihx-lab
+KERNEL_COLAB := ivannkamdem/colab
+KERNEL_KAGGLE := ivannkamdem/kaggle
 
-.PHONY: help sync sync-cpu sync-xpu sync-cuda kernel smoke check clean build push publish
+.PHONY: help sync sync-cpu sync-xpu sync-cuda kernel smoke check clean build push publish \
+	lab-push lab-pull colab-push colab-pull kaggle-push kaggle-pull
 
 help:  ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
@@ -56,3 +65,27 @@ push:  ## Push current branch to ALL remotes (auto-discovered via xargs)
 publish: build  ## Build then publish to PyPI (atomic)
 	@$(UV) publish
 	@echo "✅ published"
+
+lab-push:  ## Push + run Kaggle kernel nbs/lab (ivannkamdem/kpihx-lab)
+	@$(KAGGLE) kernels push -p $(NBS_LAB) -t $(KAGGLE_TIMEOUT)
+	@echo "✅ lab kernel pushed"
+
+lab-pull:  ## Pull Kaggle kernel source into nbs/lab
+	@$(KAGGLE) kernels pull $(KERNEL_LAB) -p $(NBS_LAB) -m
+	@echo "✅ lab kernel pulled"
+
+colab-push:  ## Push + run Kaggle kernel nbs/colab (ivannkamdem/colab)
+	@$(KAGGLE) kernels push -p $(NBS_COLAB) -t $(KAGGLE_TIMEOUT)
+	@echo "✅ colab kernel pushed"
+
+colab-pull:  ## Pull Kaggle kernel source into nbs/colab
+	@$(KAGGLE) kernels pull $(KERNEL_COLAB) -p $(NBS_COLAB) -m
+	@echo "✅ colab kernel pulled"
+
+kaggle-push:  ## Push + run Kaggle kernel nbs/kaggle (ivannkamdem/kaggle)
+	@$(KAGGLE) kernels push -p $(NBS_KAGGLE) -t $(KAGGLE_TIMEOUT)
+	@echo "✅ kaggle kernel pushed"
+
+kaggle-pull:  ## Pull Kaggle kernel source into nbs/kaggle
+	@$(KAGGLE) kernels pull $(KERNEL_KAGGLE) -p $(NBS_KAGGLE) -m
+	@echo "✅ kaggle kernel pulled"

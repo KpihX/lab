@@ -1,6 +1,6 @@
 [project]
 name = "kpihx-lab"
-version = "0.2.0"
+version = "0.2.8"
 description = "KpihX scientific and AI exploration environment (rapid scripts, plotting, numerics, hardware-accelerated prototyping)"
 requires-python = ">=3.12"
 
@@ -8,18 +8,18 @@ requires-python = ">=3.12"
 # every exploratory script, so it stays fast to sync and easy to reason about.
 # Everything heavier is an optional profile below.
 dependencies = [
-    "numpy>=2.5.2",
-    "scipy>=1.18.1",
-    "matplotlib>=3.11.1",
-    "seaborn>=0.13.0",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "seaborn",
     # In base so make kernel works on a bare sync.
-    "ipykernel>=7.4.0",
-    "scikit-learn>=1.9.1",
-    "kagglehub[hf-datasets,pandas-datasets,polars-datasets]>=1.0.2",
-    "polars>=2.0.0rc2",
-    "pandas>=3.0.6",
-    "typer>=0.27.2",
-    "rich>=15.0.0",
+    "ipykernel",
+    "scikit-learn",
+    "kagglehub[hf-datasets,pandas-datasets,polars-datasets]",
+    "polars",
+    "pandas",
+    "typer",
+    "rich",
 ]
 
 # ---------------------------------------------------------------------------
@@ -65,7 +65,6 @@ package = true
 # build and the model ends up on the CPU. Rationale and full doctrine:
 # k-ai/references/pyproject-hardware.md, template: AI/nobg/pyproject.toml.
 index-strategy = "unsafe-best-match"
-prerelease = "allow"
 # One accelerator backend per environment, never a mixture.
 conflicts = [
     [{ extra = "cpu" }, { extra = "xpu" }, { extra = "cuda" }],

@@ -7,10 +7,19 @@ jupyter:
       format_version: '1.3'
       jupytext_version: 1.19.5
   kernelspec:
-    display_name: lab (3.12.12)
+    display_name: lab
     language: python
-    name: python3
+    name: lab
 ---
+
+```python
+# !uv pip install "git+https://github.com/kpihx/lab.git"
+!uv pip install -P 'kpihx-lab[cpu]' 'kpihx-lab[cpu]'
+
+from lab.kit import Context
+
+Context.display()
+```
 
 ```python
 import numpy as np
@@ -18,11 +27,5 @@ import matplotlib.pyplot as plt
 ```
 
 ```python
-try:
-    from lab.kit import Context
-except ImportError:
-    !uv pip install -q "git+https://github.com/kpihx/lab.git"
-    from lab.kit import Context
-
-Context.display()
+print(Hi)
 ```

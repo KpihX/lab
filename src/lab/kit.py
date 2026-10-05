@@ -2,9 +2,19 @@ import os
 import platform
 import socket
 import sys
+from enum import Enum
 from pathlib import Path
 
 from lab.logo import Logo
+
+
+class Runtime(Enum):
+    """Where the lab code is executing."""
+
+    LOCAL = "local"
+    COLAB = "colab"
+    KAGGLE = "kaggle"
+    UNKNOWN = "unknown"
 
 
 class Context:
@@ -18,22 +28,25 @@ class Context:
     LOGO = Logo.KπX_Labs
 
     @classmethod
-    def resolve(cls, *path_segments: str) -> Path:
-        """Resolve a path relative to the project root, irrespective of the active runtime."""
-        return cls.ROOT.joinpath(*path_segments)
+    def runtime(cls) -> Runtime:
+        """Detect LOCAL / COLAB / KAGGLE; UNKNOWN otherwise (former get_info runtime chain)."""
+        if cls.IS_LOCAL:
+            return Runtime.LOCAL
+        elif os.environ.get("KAGGLE_KERNEL_RUN_TYPE") is not None:
+            return Runtime.KAGGLE
+        elif os.environ.get("COLAB_RELEASE_TAG") is not None:
+            return Runtime.COLAB
+        else:
+            return Runtime.UNKNOWN
 
     @classmethod
-    def get_info(cls) -> dict[str, str]:
-        """Collect diagnostic and hardware specs across local and cloud environments."""
-        if cls.IS_LOCAL:
-            runtime = f"Local ({Path(sys.prefix).name})"
-        elif Path("/kaggle/working").exists():
-            runtime = "Kaggle Cloud Container"
-        elif Path("/content").exists():
-            runtime = "Google Colab Cloud"
-        else:
-            runtime = "Remote Server"
+    def resolve(cls, rel_path: Path) -> Path:
+        """Resolve a path relative to the project root, irrespective of the active runtime."""
+        return cls.ROOT / rel_path
 
+    @classmethod
+    def device(cls) -> str:
+        """Detect compute device (torch CUDA/XPU, else nvidia presence, else CPU)."""
         device = "CPU"
         try:
             import torch
@@ -46,21 +59,25 @@ class Context:
         except Exception:
             if Path("/proc/driver/nvidia/version").exists():
                 device = "Nvidia GPU present"
+        return device
 
+    @classmethod
+    def info(cls) -> dict[str, str]:
+        """Collect diagnostic and hardware specs across local and cloud environments."""
         return {
             "OS": f"{platform.system()} {platform.release()} ({platform.machine()})",
             "Host": socket.gethostname(),
-            "Runtime": runtime,
+            "Runtime": cls.runtime().value,
             "Python": f"{platform.python_version()} @ {sys.executable}",
             "Base": str(sys.base_prefix),
             "Root": str(cls.ROOT),
-            "Device": device,
+            "Device": cls.device(),
         }
 
     @classmethod
     def display(cls, logo_str: str | None = None, stream=None) -> None:
         """Render the KπX Fastfetch-style banner and runtime metadata side-by-side."""
-        info = cls.get_info()
+        info = cls.info()
         chosen = logo_str or cls.LOGO
         raw_art = chosen.value if hasattr(chosen, "value") else str(chosen)
         logo_lines = raw_art.rstrip("\n").splitlines()

@@ -1,7 +1,7 @@
 {
-  "id": "ivannkamdem/kpihx-labs",
-  "id_no": 136664199,
-  "title": "KpihX-Labs",
+  "id": "ivannkamdem/colab",
+  "id_no": 137203673,
+  "title": "Colab",
   "code_file": "Colab.ipynb",
   "language": "python",
   "kernel_type": "notebook",
@@ -14,6 +14,6 @@
   "kernel_sources": [],
   "competition_sources": [],
   "model_sources": [],
-  "docker_image": "gcr.io/kaggle-images/python@sha256:dafd4ce5668bbf1ad422e4c109e0f18c9623c3a7c7f48b0235f13142755c40b9",
+  "docker_image": "gcr.io/kaggle-images/python@sha256:81b1e7c4b4f0f2a7e0a33943c95754b1b7af6b30d65221633a284b6b601cd84a",
   "machine_shape": "None"
 }
