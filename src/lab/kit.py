@@ -211,22 +211,33 @@ class Context:
         return cls.ROOT / rel_path
 
     @classmethod
-    def device(cls) -> str:
-        """Detect compute device (torch CUDA/XPU, else nvidia presence, else CPU)."""
-        device = "CPU"
+    def device(cls, full: bool = False) -> str:
+        """Detect compute device (torch CUDA/XPU, else nvidia presence, else CPU).
+
+        Args:
+            full: If True, return a human-readable description
+                (e.g. ``Intel XPU (Intel(R) Arc(TM) Graphics)``).
+                If False (default), return a torch-usable device string
+                (``xpu:0``, ``cuda:0``, or ``cpu``).
+        """
+        short = "cpu"
+        detail = "CPU"
         try:
             import torch
 
             if torch.cuda.is_available():
-                device = f"CUDA {torch.version.cuda} ({torch.cuda.get_device_name(0)})"
+                short = "cuda:0"
+                detail = f"CUDA {torch.version.cuda} ({torch.cuda.get_device_name(0)})"
             elif getattr(torch, "xpu", None) and torch.xpu.is_available():
-                device = f"Intel XPU ({torch.xpu.get_device_name(0)})"
+                short = "xpu:0"
+                detail = f"Intel XPU ({torch.xpu.get_device_name(0)})"
             else:
-                device = "CPU (torch)"
+                short = "cpu"
+                detail = "CPU (torch)"
         except Exception:
             if Path("/proc/driver/nvidia/version").exists():
-                device = "Nvidia GPU present"
-        return device
+                detail = "Nvidia GPU present"
+        return detail if full else short
 
     @classmethod
     def info(cls) -> dict[str, str]:
@@ -238,7 +249,7 @@ class Context:
             "Python": f"{platform.python_version()} @ {sys.executable}",
             "Base": str(sys.base_prefix),
             "Root": str(cls.ROOT),
-            "Device": cls.device(),
+            "Device": cls.device(full=True),
         }
 
     @classmethod

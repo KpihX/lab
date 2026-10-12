@@ -25,6 +25,27 @@ def init_kaiming(module: nn.Module) -> None:
         nn.init.constant_(module.bias, 0.0)
 
 
+def sync(device: str | None = None) -> None:
+    """Flush pending accelerator ops. No-op on CPU and unknown backends.
+
+    Args:
+        device: Optional torch device string (``"cuda:0"``, ``"xpu:0"``, ``"cpu"``…).
+            Only the backend prefix matters. When omitted, syncs the first available
+            accelerator (XPU then CUDA). CPU and unknown backends do nothing.
+    """
+    backend = device.split(":", 1)[0].lower() if device else None
+    if backend is None:
+        if getattr(torch, "xpu", None) is not None and torch.xpu.is_available():
+            torch.xpu.synchronize()
+        elif torch.cuda.is_available():
+            torch.cuda.synchronize()
+        return
+    if backend == "xpu" and getattr(torch, "xpu", None) is not None:
+        torch.xpu.synchronize()
+    elif backend == "cuda":
+        torch.cuda.synchronize()
+
+
 class FocalLoss(nn.Module):
     """Multi-class Focal Loss with dynamic modulation factor (1 - p_t)^gamma.
 

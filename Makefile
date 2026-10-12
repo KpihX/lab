@@ -6,7 +6,7 @@ SRC := src
 SCRIPTS := scripts
 PY := $(UV) run python
 KAGGLE := $(shell command -v kaggle 2>/dev/null || echo kaggle)
-KAGGLE_TIMEOUT ?= 60
+KAGGLE_TIMEOUT ?= 3000
 NBS_LAB := nbs/lab
 NBS_COLAB := nbs/colab
 NBS_KAGGLE := nbs/kaggle
@@ -39,7 +39,7 @@ sync-cpu:  ## Base + CPU-only torch
 	@$(UV) sync --extra cpu
 	@echo "✅ cpu torch ready"
 
-kernel: sync  ## Register lab Jupyter kernel
+kernel: ## Register lab Jupyter kernel
 	@$(PY) -m ipykernel install --user --name=lab --display-name="lab"
 	@echo "✅ kernel lab ready"
 
