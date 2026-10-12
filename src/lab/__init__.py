@@ -1,25 +1,8 @@
-"""KπX-Labs Explore/lab core package."""
+"""KπX-Labs Explore/lab core package.
 
-from lab.kit import Context
-from lab.ai import pred_eval
-from lab.logo import (
-    Logo,
-    KπX_BOLD,
-    KπX_COMPACT,
-    KπX_π_BOLD,
-    KπX_π_COMPACT,
-    π_BLOCK,
-    π_π,
-)
-
-__all__ = [
-    "Context",
-    "pred_eval",
-    "Logo",
-    "KπX_BOLD",
-    "KπX_COMPACT",
-    "KπX_π_BOLD",
-    "KπX_π_COMPACT",
-    "π_BLOCK",
-    "π_π",
-]
+Encapsulation rule (mandatory across all __init__.py):
+Never break package encapsulation inside __init__.py with cross-module re-exports.
+Direct imports in __init__.py are strictly reserved for a submodule sharing the exact
+same name as its enclosing package (e.g. from .ai import class_eval inside package ai/),
+when its contents must be directly accessible from the package root without sub-import.
+"""

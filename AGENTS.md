@@ -14,7 +14,7 @@
 ### Package and CLI
 - Installable package is `src/lab/` (import `lab`). Entry point: `lab` → `lab.cli:app`.
 - CLI command `lab context` calls `Context.display()` only (uses `Context.LOGO`). No logo selection in the CLI. No root/default app command that prints logos.
-- Public API surface: `Context`, `pred_eval`, `Logo` families (see `lab/__init__.py`).
+- Public API surface: `Context`, `class_eval`, `Logo` families (see `lab/__init__.py`).
 
 ### Dependency Management
 - **100% uv in this lab. NEVER pip. NEVER `python -m pip`. NEVER `uv pip` for agent work.**

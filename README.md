@@ -60,12 +60,12 @@ The CLI does not select logos; `context` only calls `Context.display()`.
 
 ```python
 from pathlib import Path
-from lab import Context, pred_eval, Logo
+from lab import Context, class_eval, Logo
 
 Context.display()
 path = Context.resolve(Path("assets/inputs/example"))
 
-results, axs = pred_eval(gts, preds, probas)
+results, axs = class_eval(gts, preds, probas)
 ```
 
 Default banner: `Context.LOGO` (`Logo.KπX_Labs`). Logo families and size variants live in `lab.logo`.
